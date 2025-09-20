@@ -69,13 +69,24 @@ jobs:
           pip install --upgrade pip
           pip install cython buildozer
 
-      # Bước quan trọng: cài build-tools vào SDK mà Buildozer tự tải
-      - name: Install Build-Tools into Buildozer SDK
+      # Cài Android SDK + build-tools
+      - name: Install Android SDK Build-Tools
         run: |
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk
-          yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/bin/sdkmanager \
-            --sdk_root=$HOME/.buildozer/android/platform/android-sdk \
-            "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+          mkdir -p $HOME/android-sdk
+          cd $HOME/android-sdk
+          if [ ! -d "cmdline-tools" ]; then
+            echo "Downloading Android SDK commandline-tools..."
+            curl -fo sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+            unzip -q sdk-tools.zip -d cmdline-tools
+          fi
+          yes | cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
+      # Copy SDK đã cài sang chỗ Buildozer dùng
+      - name: Prepare Buildozer SDK
+        run: |
+          mkdir -p $HOME/.buildozer/android/platform/
+          rm -rf $HOME/.buildozer/android/platform/android-sdk
+          cp -r $HOME/android-sdk $HOME/.buildozer/android/platform/android-sdk
 
       - name: Build APK
         run: |
