@@ -4,39 +4,33 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Cho phép bạn bấm nút Run workflow thủ công
 
 jobs:
   build:
-    runs-on: ubuntu-latest   # dùng runner mới nhất
+    runs-on: ubuntu-20.04
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential git python3-pip \
-          openjdk-11-jdk unzip wget zlib1g-dev libncurses5-dev libstdc++6 \
-          libffi-dev libssl-dev pkg-config autoconf automake libtool
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential git zip unzip openjdk-11-jdk python3-pip python3-setuptools python3-wheel python3-virtualenv
+          pip install --upgrade pip
+          pip install cython==0.29.33 buildozer
 
-    - name: Install Buildozer
-      run: |
-        pip install --upgrade pip
-        pip install cython buildozer
+      - name: Build APK
+        run: |
+          buildozer -v android debug
 
-    - name: Build APK
-      run: |
-        buildozer -v android debug
-
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: toanlop1-apk
-        path: bin/*.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: bin/*.apk
