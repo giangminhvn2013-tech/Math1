@@ -19,6 +19,42 @@ jobs:
         with:
           python-version: '3.10'
 
+      # Cache pip packages
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            pip-${{ runner.os }}-
+
+      # Cache Android SDK
+      - name: Cache Android SDK
+        uses: actions/cache@v3
+        with:
+          path: $HOME/android-sdk
+          key: android-sdk-${{ runner.os }}-r30
+
+      # Cache Buildozer build dir (.buildozer)
+      - name: Cache Buildozer
+        uses: actions/cache@v3
+        with:
+          path: .buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+      # Cache Gradle
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -26,18 +62,31 @@ jobs:
             build-essential git zip unzip openjdk-11-jdk python3-pip \
             python3-setuptools python3-wheel python3-virtualenv \
             pkg-config autoconf automake libtool zlib1g-dev \
-            libncurses5-dev libstdc++6 libffi-dev libssl-dev
+            libncurses5-dev libstdc++6 libffi-dev libssl-dev curl
 
       - name: Install Buildozer
         run: |
           pip install --upgrade pip
           pip install cython buildozer
 
+      - name: Install Android SDK Build-Tools
+        run: |
+          mkdir -p $HOME/android-sdk
+          cd $HOME/android-sdk
+          if [ ! -d "cmdline-tools" ]; then
+            echo "Downloading Android SDK commandline-tools..."
+            curl -fo sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+            unzip -q sdk-tools.zip -d cmdline-tools
+          fi
+          yes | cmdline-tools/bin/sdkmanager --sdk_root=$HOME/android-sdk "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+
       - name: Build APK
         run: |
+          export ANDROIDSDK=$HOME/android-sdk
+          export PATH=$ANDROIDSDK/platform-tools:$ANDROIDSDK/build-tools/30.0.3:$PATH
           buildozer -v android debug
 
-      - name: Upload APK to Artifacts
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release
