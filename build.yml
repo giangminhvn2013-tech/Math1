@@ -1,0 +1,38 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential git python3-pip \
+          openjdk-11-jdk unzip wget zlib1g-dev libncurses5-dev libstdc++6 \
+          libffi-dev libssl-dev
+
+        pip install cython buildozer
+
+    - name: Build APK
+      run: |
+        buildozer -v android debug
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: toanlop1-apk
+        path: bin/*.apk
