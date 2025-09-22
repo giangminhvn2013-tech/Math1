@@ -91,6 +91,13 @@ jobs:
           rm -rf $HOME/.buildozer/android/platform/android-sdk
           cp -r $HOME/android-sdk $HOME/.buildozer/android/platform/android-sdk
 
+      # Tạo symlink để Buildozer tìm thấy sdkmanager ở chỗ cũ (tools/bin)
+      - name: Fix Buildozer SDK path (sdkmanager link)
+        run: |
+          SDK=$HOME/.buildozer/android/platform/android-sdk
+          mkdir -p $SDK/tools/bin
+          ln -sf $SDK/cmdline-tools/latest/bin/sdkmanager $SDK/tools/bin/sdkmanager
+
       - name: Build APK
         run: |
           export ANDROIDSDK=$HOME/.buildozer/android/platform/android-sdk
