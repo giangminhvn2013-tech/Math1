@@ -1,41 +1,44 @@
 [app]
 
-# Tên ứng dụng hiển thị trên Android
-title = Toán Lớp 1 Vui Nhộn
-
-# Tên gói nội bộ (chữ thường, không khoảng trắng)
+# Thông tin ứng dụng
+title = Toán Lớp 1
 package.name = toanlop1
-
-# Domain ngược (dùng tạm org.example)
 package.domain = org.example
-
-# Thư mục chứa source code
 source.dir = .
+source.include_exts = py,png,jpg,kv,atlas,ttf,wav,ogg,mp3
 
-# Bao gồm các file cần thiết khi đóng gói
-source.include_exts = py,wav,png,jpg,ogg,mp3
+# Thư viện cần thiết
+requirements = python3,kivy
 
-# Thư viện Python cần dùng
-requirements = python3,pygame
-
-# Hướng màn hình
+# Màn hình
 orientation = portrait
 
-# Toàn màn hình
-fullscreen = 1
+# Cho phép log chi tiết để debug
+log_level = 2
 
-# Phiên bản ứng dụng
-version = 1.0.0
+# Icon & ảnh splash (tùy chọn, bạn có thể thay đường dẫn file thật)
+icon.filename = %(source.dir)s/data/icon.png
+presplash.filename = %(source.dir)s/data/presplash.png
 
-# Icon (nếu có file icon.png trong thư mục gốc)
-# icon.filename = %(source.dir)s/icon.png
+# Android thông tin thêm
+android.api = 31
+android.minapi = 21
+android.sdk = 30
+android.ndk = 25b
+android.archs = arm64-v8a, armeabi-v7a
+android.ndk_api = 21
 
+# APK type
+android.accept_sdk_license = True
+fullscreen = 0
+
+
+# (Tùy chọn) nếu bạn muốn xuất bản release có ký
+# android.release = True
+# android.sign = True
+# android.keyalias = mykey
 
 [buildozer]
 
-# Cấp độ log (0 = ít, 2 = nhiều chi tiết)
 log_level = 2
-
-# Cảnh báo khi chạy dưới quyền root
 warn_on_root = 1
-
