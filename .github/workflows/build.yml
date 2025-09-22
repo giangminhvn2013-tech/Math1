@@ -64,10 +64,10 @@ jobs:
             pkg-config autoconf automake libtool zlib1g-dev \
             libncurses5-dev libstdc++6 libffi-dev libssl-dev curl
 
-      - name: Install Buildozer
+      - name: Install Buildozer & p4a
         run: |
           pip install --upgrade pip
-          pip install cython buildozer
+          pip install --upgrade buildozer python-for-android cython
 
       # Cài Android SDK + build-tools (fix sdkmanager path)
       - name: Install Android SDK Build-Tools
@@ -91,12 +91,14 @@ jobs:
           rm -rf $HOME/.buildozer/android/platform/android-sdk
           cp -r $HOME/android-sdk $HOME/.buildozer/android/platform/android-sdk
 
-      # Tạo symlink để Buildozer tìm thấy sdkmanager ở chỗ cũ (tools/bin)
-      - name: Fix Buildozer SDK path (sdkmanager link)
+      # Ép Buildozer có tools/bin/sdkmanager
+      - name: Fix Buildozer SDK path (force symlink tools/bin)
         run: |
           SDK=$HOME/.buildozer/android/platform/android-sdk
           mkdir -p $SDK/tools/bin
-          ln -sf $SDK/cmdline-tools/latest/bin/sdkmanager $SDK/tools/bin/sdkmanager
+          if [ -f $SDK/cmdline-tools/latest/bin/sdkmanager ]; then
+            ln -sf $SDK/cmdline-tools/latest/bin/sdkmanager $SDK/tools/bin/sdkmanager
+          fi
 
       - name: Build APK
         run: |
